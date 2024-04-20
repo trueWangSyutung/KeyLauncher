@@ -1,16 +1,18 @@
 package cn.tw.sar.easylauncher
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.location.Location
 import android.location.LocationManager
+import android.os.Build
 import android.os.Bundle
+import android.speech.tts.TextToSpeech
+import android.speech.tts.UtteranceProgressListener
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -46,13 +48,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.app.ActivityCompat
 import cn.tw.sar.easylauncher.activities.LocalSettingActivity
-import cn.tw.sar.easylauncher.beam.CityBean
 import cn.tw.sar.easylauncher.beam.Contract
 import cn.tw.sar.easylauncher.beam.DesktopIcon
 import cn.tw.sar.easylauncher.beam.openWeatherMapApiW.OpenWeatherBean
-import cn.tw.sar.easylauncher.beam.weather2.Result
 import cn.tw.sar.easylauncher.beam.weather2.WeatherAPIBean
 import cn.tw.sar.easylauncher.dao.OpenWeatherMapApi
 import cn.tw.sar.easylauncher.dao.WeatherApi
@@ -63,6 +62,10 @@ import cn.tw.sar.easylauncher.utils.getAllInstallApps
 import cn.tw.sar.easylauncher.utils.getDarkModeBackgroundColor
 import cn.tw.sar.easylauncher.utils.getDarkModeTextColor
 import cn.tw.sar.easylauncher.utils.getInstalledApps
+import cn.tw.sar.easylauncher.utils.requestBasePermission
+import cn.tw.sar.easylauncher.utils.requestContactPermission
+import cn.tw.sar.easylauncher.utils.requestPhonePermission
+import cn.tw.sar.easylauncher.utils.requestReadCallLogPermission
 import cn.tw.sar.easylauncher.utils.timeFormat
 import cn.tw.sar.easylauncher.weight.KeyBoard
 import cn.tw.sar.easylauncher.weight.LineBar
@@ -72,6 +75,7 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.Calendar
+import java.util.Locale
 import kotlin.concurrent.thread
 import kotlin.math.ceil
 import kotlin.math.floor
@@ -81,37 +85,6 @@ class MainActivity : ComponentActivity() {
     var appList: Set<DesktopIcon> = mutableSetOf()
     var allList: Set<DesktopIcon> = mutableSetOf()
     var quickContract : Set<Contract> = mutableSetOf()
-    fun requestPermission() {
-        val permissions = arrayOf(
-            android.Manifest.permission.QUERY_ALL_PACKAGES,
-            android.Manifest.permission.READ_EXTERNAL_STORAGE,
-            android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            android.Manifest.permission.READ_PHONE_STATE,
-            android.Manifest.permission.CALL_PHONE,
-            android.Manifest.permission.READ_CONTACTS,
-            android.Manifest.permission.WRITE_CONTACTS,
-            android.Manifest.permission.READ_CALL_LOG,
-            android.Manifest.permission.WRITE_CALL_LOG,
-            android.Manifest.permission.READ_SMS,
-            android.Manifest.permission.SEND_SMS,
-            android.Manifest.permission.INTERNET,
-
-        )
-        // 检查权限
-        var hasPermission = true
-        for (permission in permissions) {
-            if (checkSelfPermission(permission) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
-                hasPermission = false
-                break
-            }
-        }
-        // 请求权限
-        if (!hasPermission){
-            requestPermissions(permissions, 0)
-
-        }
-
-    }
     lateinit var locationManager: LocationManager
     var haveNetWorkPermission = mutableStateOf(false)
 
@@ -472,47 +445,120 @@ class MainActivity : ComponentActivity() {
 
 
     }
+    fun checkPermission() : Boolean {
+        var permissions = arrayOf(
+            android.Manifest.permission.QUERY_ALL_PACKAGES,
+
+            android.Manifest.permission.READ_PHONE_STATE,
+            android.Manifest.permission.CALL_PHONE,
+            android.Manifest.permission.READ_CONTACTS,
+            android.Manifest.permission.WRITE_CONTACTS,
+            android.Manifest.permission.READ_CALL_LOG,
+            android.Manifest.permission.WRITE_CALL_LOG,
+            android.Manifest.permission.READ_SMS,
+            android.Manifest.permission.INTERNET,
+
+        )
+        var hasPermission = true
+        for (permission in permissions) {
+            if (checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
+
+                hasPermission = false
+                return hasPermission
+            }
+        }
+        return hasPermission
+
+    }
     override fun onResume() {
         super.onResume()
-        // 如果是其他页面返回到该页面的
-        allList = getAllInstallApps(this@MainActivity)
-        // 重新获取应用
-        appList = getInstalledApps(this@MainActivity)
-
-        quickContract = ContractUtils.readQuickContract(this@MainActivity)
         updateTime()
         updateDate()
-        var settings =  getSharedPreferences("settings", MODE_PRIVATE)
-        var showMore = settings.getBoolean("1", false)
-        if (showMore) {
-            appList.plus(
-                DesktopIcon(
-                    type = 99,
-                    packageName = "more",
-                    showDesktop = true,
-                    showDock = false
-                )
-            )
-        }
+        if (checkPermission()) {
+            allList = getAllInstallApps(this@MainActivity)
+            // 重新获取应用
+            appList = getInstalledApps(this@MainActivity)
 
-        var sp = getSharedPreferences("weather", MODE_PRIVATE)
-        var city = sp.getString("city", "")
-        if (city != "") {
-            haveLocation.value = true
-            thread {
-                getWeather(city!!)
-                // 20分钟更新一次
-                Thread.sleep(20*60*1000)
+            quickContract = ContractUtils.readQuickContract(this@MainActivity)
+
+            var settings =  getSharedPreferences("settings", MODE_PRIVATE)
+            var showMore = settings.getBoolean("1", false)
+            if (showMore) {
+                appList.plus(
+                    DesktopIcon(
+                        type = 99,
+                        packageName = "more",
+                        showDesktop = true,
+                        showDock = false
+                    )
+                )
             }
 
-        }else{
-            haveLocation.value = false
+            var sp = getSharedPreferences("weather", MODE_PRIVATE)
+            var city = sp.getString("city", "")
+            if (city != "") {
+                haveLocation.value = true
+                thread {
+                    getWeather(city!!)
+                    // 20分钟更新一次
+                    Thread.sleep(20*60*1000)
+                }
+
+            }else{
+                haveLocation.value = false
+            }
+
+
+            Log.d("showDesktop", "appList.size: ${appList.size}")
+
+            keySound.value = settings.getBoolean("10", false)
+            if (keySound.value) {
+                tts = TextToSpeech(this) { status ->
+                    if (status == TextToSpeech.SUCCESS) {
+                        val result = tts?.setLanguage(Locale.CHINA)
+                        if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                            Toast.makeText(
+                                this@MainActivity,
+                                "Language not supported",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } else {
+                            // 设置进度监听器（可选）
+                            tts?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+                                override fun onStart(utteranceId: String) {}
+                                override fun onDone(utteranceId: String) {
+                                    // 文本转换语音完成
+                                }
+
+                                override fun onError(utteranceId: String) {}
+                            })
+                        }
+                    }
+                }
+            }
         }
+        // 如果是其他页面返回到该页面的
 
 
-        Log.d("showDesktop", "appList.size: ${appList.size}")
+    }
+    override fun onDestroy() {
+        if (tts != null) {
+            tts?.stop()
+            tts?.shutdown()
+        }
+        super.onDestroy()
     }
 
+    fun speakText(text: String?) {
+        // 如果未初始化
+        if (tts == null) {
+            Toast.makeText(this, "TextToSpeech is not initialized", Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (tts != null) {
+            tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null)
+        }
+    }
     var pageSize = 0f
     var pageCount = 0
 
@@ -678,17 +724,70 @@ class MainActivity : ComponentActivity() {
 
 
     }
+    var keySound = mutableStateOf(false)
+    private  var tts: TextToSpeech? = null
 
+    @RequiresApi(Build.VERSION_CODES.R)
+    fun requestPermission() {
+        val permissions = arrayOf(
+            android.Manifest.permission.QUERY_ALL_PACKAGES,
+
+            android.Manifest.permission.READ_PHONE_STATE,
+            android.Manifest.permission.CALL_PHONE,
+            android.Manifest.permission.READ_CONTACTS,
+            android.Manifest.permission.WRITE_CONTACTS,
+            android.Manifest.permission.READ_CALL_LOG,
+            android.Manifest.permission.WRITE_CALL_LOG,
+            android.Manifest.permission.READ_SMS,
+            android.Manifest.permission.INTERNET,
+
+            )
+        // 检查权限
+        var hasPermission = true
+        for (permission in permissions) {
+            if (checkSelfPermission(permission) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                hasPermission = false
+                break
+            }
+        }
+        if (!hasPermission) {
+            requestPermissions(permissions, 0)
+        }
+
+
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        Log.d("MainActivity", "requestCode: ${requestCode} grantResults: ${grantResults[0]}")
+        if (grantResults.isNotEmpty()) {
+
+            for (i in grantResults.indices) {
+                /// 如果读取联系人权限被同意
+                if (permissions[i] == android.Manifest.permission.READ_CONTACTS && grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+                    Log.d("MainActivity", "READ_CONTACTS PERMISSION_GRANTED")
+                    quickContract = ContractUtils.readQuickContract(this@MainActivity)
+
+                }
+            }
+
+        }
+    }
+    @RequiresApi(Build.VERSION_CODES.R)
     @OptIn(ExperimentalFoundationApi::class)
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.d("MainActivity", "basedPermission: ${checkPermission()}")
         requestPermission()
+
         allList = getAllInstallApps(this@MainActivity)
         // 重新获取应用
         appList = getInstalledApps(this@MainActivity)
-
-        quickContract = ContractUtils.readQuickContract(this@MainActivity)
 
         // 获取屏幕宽度 dp
         val displayMetrics = resources.displayMetrics
@@ -710,6 +809,7 @@ class MainActivity : ComponentActivity() {
         }
 
         getPageAndPageSize()
+
 
         setContent {
             val scrollerLocal = rememberScrollState()
@@ -1271,6 +1371,7 @@ class MainActivity : ComponentActivity() {
                                     Log.d("MainActivity", it)
                                     when (it) {
                                         "up" -> {
+
                                             if (!callPhoneMode.value){
                                                 if (currAppNumber.value - 2 >= 0) {
                                                     currAppNumber.value -= 2
@@ -1282,6 +1383,23 @@ class MainActivity : ComponentActivity() {
                                                     currAppNumber.value = maxSize - 1
                                                     page.value = maxPage.value
                                                 }
+                                                if (keySound.value){
+                                                    // 获取appName
+                                                    var list = if (showMoreApps.value) {
+                                                        allList
+                                                    }else{
+                                                        appList
+                                                    }
+                                                    var appManager = packageManager
+                                                    var appName = appManager.getApplicationLabel(
+                                                        appManager.getApplicationInfo(
+                                                            list.elementAt(currAppNumber.value).packageName,
+                                                            PackageManager.GET_META_DATA
+                                                        )
+                                                    )
+                                                    speakText(appName.toString())
+                                                }
+
                                             }else {
                                                 Log.d("MainActivity", "scrollerLocal.value: ${scrollerLocal.value}")
                                                 isDown.value = false
@@ -1289,6 +1407,7 @@ class MainActivity : ComponentActivity() {
 
                                         }
                                         "down" -> {
+
                                             if (!callPhoneMode.value){
                                                 if (currAppNumber.value + 2 < maxSize) {
                                                     currAppNumber.value += 2
@@ -1300,12 +1419,31 @@ class MainActivity : ComponentActivity() {
                                                     currAppNumber.value = 0
                                                     page.value = 1
                                                 }
+                                                if (keySound.value){
+                                                    // 获取appName
+                                                    var list = if (showMoreApps.value) {
+                                                        allList
+                                                    }else{
+                                                        appList
+                                                    }
+                                                    var appManager = packageManager
+                                                    var appName = appManager.getApplicationLabel(
+                                                        appManager.getApplicationInfo(
+                                                            list.elementAt(currAppNumber.value).packageName,
+                                                            PackageManager.GET_META_DATA
+                                                        )
+                                                    )
+                                                    speakText(appName.toString())
+                                                }
+
+
                                             }else{
                                                 isDown.value = true
                                             }
 
                                         }
                                         "left" -> {
+
                                             if (!callPhoneMode.value){
                                                 if (currAppNumber.value - 1 >= 0) {
                                                     currAppNumber.value -= 1
@@ -1317,10 +1455,27 @@ class MainActivity : ComponentActivity() {
                                                     currAppNumber.value = maxSize - 1
                                                     page.value = maxPage.value
                                                 }
+                                                if (keySound.value){
+                                                    // 获取appName
+                                                    var list = if (showMoreApps.value) {
+                                                        allList
+                                                    }else{
+                                                        appList
+                                                    }
+                                                    var appManager = packageManager
+                                                    var appName = appManager.getApplicationLabel(
+                                                        appManager.getApplicationInfo(
+                                                            list.elementAt(currAppNumber.value).packageName,
+                                                            PackageManager.GET_META_DATA
+                                                        )
+                                                    )
+                                                    speakText(appName.toString())
+                                                }
                                             }
 
                                         }
                                         "right" -> {
+
                                             if (!callPhoneMode.value){
                                                 if (currAppNumber.value + 1 < maxSize) {
                                                     currAppNumber.value += 1
@@ -1332,17 +1487,43 @@ class MainActivity : ComponentActivity() {
                                                     currAppNumber.value = 0
                                                     page.value = 1
                                                 }
+                                                if (keySound.value){
+                                                    // 获取appName
+                                                    var list = if (showMoreApps.value) {
+                                                        allList
+                                                    }else{
+                                                        appList
+                                                    }
+                                                    var appManager = packageManager
+                                                    var appName = appManager.getApplicationLabel(
+                                                        appManager.getApplicationInfo(
+                                                            list.elementAt(currAppNumber.value).packageName,
+                                                            PackageManager.GET_META_DATA
+                                                        )
+                                                    )
+                                                    speakText(appName.toString())
+                                                }
+
                                             }
 
                                         }
                                         "open" -> {
+
                                             if (!callPhoneMode.value) {
                                                 if (page.value==0){
                                                     page.value = -1
                                                 }else{
+                                                    var list = if (showMoreApps.value) {
+                                                        allList
+                                                    }else{
+                                                        appList
+                                                    }
+                                                    if (keySound.value){
+                                                        speakText("打开应用")
+                                                    }
                                                     val launchIntent =
                                                         packageManager.getLaunchIntentForPackage(
-                                                            appList.elementAt(currAppNumber.value).packageName
+                                                            list.elementAt(currAppNumber.value).packageName
                                                         )
                                                     startActivity(launchIntent)
                                                 }
@@ -1351,9 +1532,15 @@ class MainActivity : ComponentActivity() {
                                         }
                                         "home" -> {
                                             page.value = 0
+                                            if (keySound.value){
+                                                speakText("返回主页")
+                                            }
                                         }
                                         "back" -> {
                                             if (callPhoneMode.value){
+                                                if (keySound.value){
+                                                    speakText("删除")
+                                                }
                                                 callPhoneText.value =
                                                     callPhoneText.value.substring(
                                                         0,
@@ -1372,12 +1559,17 @@ class MainActivity : ComponentActivity() {
                                         "call" -> {
                                             // 拨打电话
                                             if (callPhoneMode.value) {
+                                                val callPermission = requestPhonePermission(this@MainActivity)
+
                                                 val intent = Intent(Intent.ACTION_CALL)
                                                 intent.data =
                                                     android.net.Uri.parse("tel:${callPhoneText.value}")
                                                 startActivity(intent)
                                                 callPhoneMode.value = false
                                                 callPhoneText.value = ""
+                                                if (keySound.value){
+                                                    speakText("拨打${callPhoneText.value}")
+                                                }
                                             }else{
                                                 page.value = -1
 
@@ -1389,19 +1581,26 @@ class MainActivity : ComponentActivity() {
                                             if (callPhoneMode.value){
                                                 callPhoneMode.value = false
                                                 callPhoneText.value = ""
+                                                if (keySound.value){
+                                                    speakText("退出拨号")
+                                                }
                                             }
                                         }
                                         // 其他的按键
                                         else -> {
+                                            if (keySound.value){
+                                                speakText(it)
+                                            }
                                             if (callPhoneText.value==""){
                                                 callPhoneMode.value = true
-
                                             }
                                             if (callPhoneMode.value) {
                                                 callPhoneText.value += it
                                                 //  如果不是 *\# 开头
                                                 if (callPhoneText.value.length > 1) {
                                                     if (callPhoneText.value[0] != '*' && callPhoneText.value[0] != '#' ) {
+                                                        val logPermission = requestReadCallLogPermission(this@MainActivity)
+
                                                         contracts = ContractUtils.getLogStartWithStr(
                                                                 callPhoneText.value,
                                                                 this@MainActivity

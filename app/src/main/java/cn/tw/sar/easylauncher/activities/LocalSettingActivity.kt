@@ -51,6 +51,12 @@ class LocalSettingActivity : ComponentActivity() {
     var allList2 : List<OpenWeatherCityBeanItem> = mutableListOf()
     var isOk = mutableStateOf(false)
     fun  search(cityName: String,apiNmae: String = "心知天气") {
+        isOk.value = false
+        allList = mutableSetOf()
+        allList2 = mutableListOf()
+        // 显示加载动画
+
+
         var sp = getSharedPreferences("settings", MODE_PRIVATE)
         var baseUrl = ""
         if (apiNmae == "心知天气") {
@@ -111,7 +117,9 @@ class LocalSettingActivity : ComponentActivity() {
                         }
                     }
                 } catch (e: Exception) {
-                    Toast.makeText(this, "搜索失败", Toast.LENGTH_SHORT).show()
+                    runOnUiThread {
+                        Toast.makeText(this, "搜索失败", Toast.LENGTH_SHORT).show()
+                    }
                     Log.e("LocalSettingActivity", "search: ", e)
                 }
 
@@ -259,7 +267,7 @@ class LocalSettingActivity : ComponentActivity() {
                                            ) {
                                                // 获取当前语言
                                                Text(
-                                                   text = item.local_names.zh,
+                                                   text = item.name,
                                                    color = getDarkModeTextColor(this@LocalSettingActivity),
                                                    fontSize = 20.sp
 

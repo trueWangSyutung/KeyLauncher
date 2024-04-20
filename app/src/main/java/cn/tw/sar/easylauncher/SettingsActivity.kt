@@ -19,6 +19,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -62,6 +64,8 @@ class SettingsActivity : ComponentActivity() {
         // Menu("显示主屏幕", 0, 2),
         // Menu("负一屏", 0, 3),
         Menu("时钟显秒", 0, 5),
+        Menu("按键音效", 0, 10),
+
         Menu("开源仓库",1,9)
 
         )
@@ -70,6 +74,7 @@ class SettingsActivity : ComponentActivity() {
     var showDesktop = mutableStateOf(false)
     var showNegativeOneScreen =mutableStateOf(false)
     var showClockSecond = mutableStateOf(false)
+    var keyBoardSound = mutableStateOf(false)
 
 
     @OptIn(ExperimentalMaterial3Api::class)
@@ -140,6 +145,7 @@ class SettingsActivity : ComponentActivity() {
                                             )
                                         )
                                     }
+
                                     "开源仓库" -> {
 
                                         // 跳转到开源仓库,通过浏览器
@@ -213,13 +219,23 @@ class SettingsActivity : ComponentActivity() {
 
                             }) {
                             DropdownMenuItem(text = {
-                                Text("心知天气", color = textColor, textAlign = TextAlign.End)
+                                Text("心知天气（企业版）", color = textColor, textAlign = TextAlign.End)
                             }, onClick = {
                                 api.value = "心知天气"
                                 sp.edit().putString("api", "心知天气").apply()
                                 apiKey.value = sp.getString("心知天气", "").toString()
 
                             })
+                            /**
+                             *   DropdownMenuItem(text = {
+                             *                                 Text("心知天气（个人版）", color = textColor, textAlign = TextAlign.End)
+                             *                             }, onClick = {
+                             *                                 api.value = "心知天气（个人版）"
+                             *                                 sp.edit().putString("api", "心知天气（个人版）").apply()
+                             *                                 apiKey.value = sp.getString("心知天气（个人版）", "").toString()
+                             *
+                             *                             })
+                             */
                             DropdownMenuItem(text = {
                                 Text("OpenWeatherMap", color = textColor, textAlign = TextAlign.End)
                             }, onClick = {
@@ -237,7 +253,8 @@ class SettingsActivity : ComponentActivity() {
                             .padding(5.dp)
                             .background(
                                 color = subBackground, shape = MaterialTheme.shapes.medium
-                            ).padding(10.dp)
+                            )
+                            .padding(10.dp)
                             .clickable {
                                 when (menu.name) {
                                     "API_KEY设置" -> {
@@ -319,6 +336,13 @@ class SettingsActivity : ComponentActivity() {
                                 // 时钟显示秒
                                 checked = showClockSecond.value
                             }
+                            "按键音效" -> {
+                                // 按键音效
+                                checked = keyBoardSound.value
+                            }
+                            else -> {
+
+                            }
                         }
                         Switch(checked = checked,
                             modifier = Modifier
@@ -341,6 +365,13 @@ class SettingsActivity : ComponentActivity() {
                                 "时钟显秒" -> {
                                     // 时钟显示秒
                                     showClockSecond.value = it
+                                }
+                                "按键音效" -> {
+                                    // 按键音效
+                                    keyBoardSound.value = it
+                                }
+                                else -> {
+
                                 }
                             }
                             var sharedPreferences = getSharedPreferences("settings", MODE_PRIVATE)
@@ -370,6 +401,7 @@ class SettingsActivity : ComponentActivity() {
         showDesktop.value = sharedPreferences.getBoolean("2", false)
         showNegativeOneScreen.value = sharedPreferences.getBoolean("3", false)
         showClockSecond.value = sharedPreferences.getBoolean("5", false)
+        keyBoardSound.value = sharedPreferences.getBoolean("10", false)
     }
 
     @OptIn(ExperimentalMaterial3Api::class)
@@ -394,6 +426,9 @@ class SettingsActivity : ComponentActivity() {
                                 ),
 
                                 )
+                            .verticalScroll(
+                                rememberScrollState()
+                            )
                             .padding(10.dp)
                     ) {
                         // 获取 packageName 为 cn.tw.sar.easylauncher 的应用图标

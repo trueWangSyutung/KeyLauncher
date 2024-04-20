@@ -204,7 +204,10 @@ fun KeyBoard(
                 disabledContentColor = Color.White ,
                 disabledContainerColor = buttonColor
             )
-            Row {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
                 Column {
                     Button(
                         onClick = {
@@ -215,6 +218,7 @@ fun KeyBoard(
                             .width((width / 3).dp)
                             .padding(5.dp)
                             .background(buttonColor, MaterialTheme.shapes.small),
+
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
