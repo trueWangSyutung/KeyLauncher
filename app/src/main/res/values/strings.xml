@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">KeyLauncher</string>
+    <string name="title_activity_settings">KeyLauncher</string>
+    <string name="title_activity_app_hidden">AppHiddenActivity</string>
+    <string name="title_activity_quick_contracts">QuickContractsActivity</string>
+    <string name="title_activity_local_setting">LocalSettingActivity</string>
+</resources>

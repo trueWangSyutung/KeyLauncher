@@ -1,0 +1,20 @@
+{
+  "version": 3,
+  "artifactType": {
+    "type": "APK",
+    "kind": "Directory"
+  },
+  "applicationId": "cn.tw.sar.easylauncher",
+  "variantName": "release",
+  "elements": [
+    {
+      "type": "SINGLE",
+      "filters": [],
+      "attributes": [],
+      "versionCode": 100002,
+      "versionName": "0.0.2 Alpha",
+      "outputFile": "app-release.apk"
+    }
+  ],
+  "elementType": "File"
+}
