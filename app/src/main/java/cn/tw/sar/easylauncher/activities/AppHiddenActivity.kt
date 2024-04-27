@@ -37,6 +37,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import cn.tw.sar.easylauncher.R
 import cn.tw.sar.easylauncher.SettingsActivity
 import cn.tw.sar.easylauncher.activities.ui.theme.EasyLauncherTheme
 import cn.tw.sar.easylauncher.beam.DesktopIcon
@@ -163,7 +164,7 @@ class AppHiddenActivity : ComponentActivity() {
                             )
                             .padding(10.dp)
                     ) {
-                        Text(text = "显示应用", fontSize = 30.sp,
+                        Text(text = resources.getString(R.string.appshow), fontSize = 30.sp,
                             modifier = Modifier.padding(10.dp,30.dp,10.dp,30.dp)
                             , color = getDarkModeTextColor(this@AppHiddenActivity))
                         AnimatedVisibility(visible = isOk.value) {

@@ -44,6 +44,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.toLowerCase
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -56,6 +57,7 @@ import cn.tw.sar.easylauncher.beam.weather2.WeatherAPIBean
 import cn.tw.sar.easylauncher.dao.OpenWeatherMapApi
 import cn.tw.sar.easylauncher.dao.WeatherApi
 import cn.tw.sar.easylauncher.utils.ContractUtils
+import cn.tw.sar.easylauncher.utils.LocalCalenderUtils
 import cn.tw.sar.easylauncher.utils.LunarCalender
 import cn.tw.sar.easylauncher.utils.dataFormat
 import cn.tw.sar.easylauncher.utils.getAllInstallApps
@@ -70,6 +72,7 @@ import cn.tw.sar.easylauncher.utils.timeFormat
 import cn.tw.sar.easylauncher.weight.KeyBoard
 import cn.tw.sar.easylauncher.weight.LineBar
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
+import net.time4j.android.ApplicationStarter
 import retrofit2.Call
 import retrofit2.Response
 import retrofit2.Retrofit
@@ -165,12 +168,14 @@ class MainActivity : ComponentActivity() {
                         .height(50.dp)
 
                 )
+                // 获取语言, string.xml
+
                 var text = if (app.type == 99) {
-                    "更多应用"
+                    resources.getString(R.string.more)
                 }else if (app.type == 98) {
-                    "桌面设置"
+                    resources.getString(R.string.desktop_settings)
                 } else {
-                    "更多"
+                    resources.getString(R.string.mores)
                 }
                 Text(
                     text = text,
@@ -342,7 +347,7 @@ class MainActivity : ComponentActivity() {
     fun getWeatherByXinZhi(city: String, apiKey: String) {
         // 如果 city可以被分割, 则是经纬度
         if (city.contains("-")) {
-            weatherStr.value = "请重新设置地址"
+            weatherStr.value = resources.getString(R.string.errors_address)
             return
         }
         var retrofit =  Retrofit.Builder()
@@ -371,7 +376,7 @@ class MainActivity : ComponentActivity() {
                 }
             }catch (e: Exception) {
                 Log.d("MainActivity", "getWeather: ${e.message}")
-                weatherStr.value = "接口返回异常"
+                weatherStr.value = resources.getString(R.string.errors)
 
             }
 
@@ -387,7 +392,7 @@ class MainActivity : ComponentActivity() {
 
         }catch (e: Exception) {
             Log.d("MainActivity", "getWeather: ${e.message}")
-            weatherStr.value = "请重新设置地址"
+            weatherStr.value = resources.getString(R.string.errors_address)
             return
         }
 
@@ -401,10 +406,15 @@ class MainActivity : ComponentActivity() {
 
         val api: OpenWeatherMapApi = retrofit.create(OpenWeatherMapApi::class.java)
 
+        // 获取当前系统语言
+        var language = (Locale.getDefault().language+"_"+Locale.getDefault().country).toLowerCase()
+        Log.d("MainActivity", "getWeatherByOpenWeatherMap: ${language}")
+        // 如果是中文
+
 
 
         val dataCall: Call<OpenWeatherBean> = api.getWeather(
-            lat,lon,apiKey,"zh_cn","metric"
+            lat,lon,apiKey,language,"metric"
         )
         thread {
             try {
@@ -420,7 +430,7 @@ class MainActivity : ComponentActivity() {
                 }
             }catch (e: Exception) {
                 Log.d("MainActivity", "getWeather: ${e.message}")
-                weatherStr.value = "接口返回异常"
+                weatherStr.value = resources.getString(R.string.errors)
 
             }
 
@@ -431,7 +441,7 @@ class MainActivity : ComponentActivity() {
         val apiName = sp.getString("api", "心知天气")
         val apiKey = sp.getString(apiName, "")
         if (apiKey == "") {
-            weatherStr.value = "未设置天气API"
+            weatherStr.value = resources.getString(R.string.no_api)
             return
         }
         if (apiName == "心知天气") {
@@ -472,6 +482,8 @@ class MainActivity : ComponentActivity() {
     }
     override fun onResume() {
         super.onResume()
+        isChinese.value = LocalCalenderUtils.isChineseNation(this@MainActivity)
+
         updateTime()
         updateDate()
         if (checkPermission()) {
@@ -573,6 +585,8 @@ class MainActivity : ComponentActivity() {
     var city = mutableStateOf("")
     var weather = mutableStateOf("")
 
+    var isChinese = mutableStateOf(false)
+
 
 
     fun updateTime() {
@@ -626,8 +640,19 @@ class MainActivity : ComponentActivity() {
         val month = calendar.get(Calendar.MONTH) + 1
         val day = calendar.get(Calendar.DAY_OF_MONTH)
         val week = calendar.get(Calendar.DAY_OF_WEEK)
-        val weekStrs = arrayOf("日", "一", "二", "三", "四", "五", "六")
-        rlStr.value = "${year}年${month}月${day}日 星期${weekStrs[week-1]}"
+        var weekStrs = arrayOf(
+            resources.getString(R.string.sunday),
+            resources.getString(R.string.monday),
+            resources.getString(R.string.tuesday),
+            resources.getString(R.string.wednesday),
+            resources.getString(R.string.thursday),
+            resources.getString(R.string.friday),
+            resources.getString(R.string.saturday)
+        )
+
+        rlStr.value = "${year}/${month}/" +
+                "${day}, ${weekStrs[week-1]}"
+
         // 获取农历
         // val lunarUtils = cn.tw.sar.easylauncher.utils.LunarUtils(year, month, day)
         val lunarCalender = LunarCalender()
@@ -636,14 +661,22 @@ class MainActivity : ComponentActivity() {
 
         var lunarString = lunarCalender.getLunarString(year, month, day);
         var fartival = lunarCalender.getFestival(year, month, day)
+
         var yijiStr = lunarCalender.getyiji(year, month, day).split("-")
+        // 如該沒有分割成功
+        if (yijiStr.size != 2) {
+            yijiStr = lunarCalender.getyiji(year, month, day).split(" ")
+        }
+        Log.d("MainActivity", "lunar: ${lunarCalender.getyiji(year, month, day)}")
 
         val lunar = "${lunarString} ${fartival}"
 
         yi.value = yijiStr[0].replace("宜:", "")
         ji.value = yijiStr[1].replace("忌:", "")
         nlStr.value = lunar
-        nlYear.value = "农历${lunarCyclical}${launrAnimal}"
+        nlYear.value = LocalCalenderUtils.getLocalCalender(
+            this,year, month, day
+        )
     }
     fun getPageAndPageSize(){
 
@@ -784,6 +817,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         Log.d("MainActivity", "basedPermission: ${checkPermission()}")
         requestPermission()
+        ApplicationStarter.initialize(this, true); // with prefetch on background thread
+        isChinese.value = LocalCalenderUtils.isChineseNation(this@MainActivity)
 
         allList = getAllInstallApps(this@MainActivity)
         // 重新获取应用
@@ -792,7 +827,7 @@ class MainActivity : ComponentActivity() {
         // 获取屏幕宽度 dp
         val displayMetrics = resources.displayMetrics
         val dpWidth = displayMetrics.widthPixels / displayMetrics.density
-
+        val keyHight = dpWidth*5/4
 
         val height = displayMetrics.heightPixels
         val dpHeight = height / displayMetrics.density
@@ -883,7 +918,7 @@ class MainActivity : ComponentActivity() {
                                                         text = if (haveLocation.value) {
                                                             weatherStr.value
                                                         }else {
-                                                            "未设置城市"
+                                                            resources.getString(R.string.no_address)
                                                         },
                                                         fontSize = 20.sp,
                                                         modifier = Modifier.clickable {
@@ -904,7 +939,11 @@ class MainActivity : ComponentActivity() {
                                                     )
                                                     // 显示农历
                                                     Text(
-                                                        text = nlYear.value+nlStr.value,
+                                                        text = if (isChinese.value){
+                                                            nlYear.value+nlStr.value
+                                                                                   }else{
+                                                            nlYear.value
+                                                                                        },
                                                         fontSize = 16.sp,
                                                         color = getDarkModeTextColor(
                                                             this@MainActivity
@@ -918,77 +957,80 @@ class MainActivity : ComponentActivity() {
                                                             this@MainActivity
                                                         )
                                                     )
-                                                    Column(
-                                                        modifier = Modifier.fillMaxWidth(),
+                                                    AnimatedVisibility(visible = isChinese.value) {
+                                                        Column(
+                                                            modifier = Modifier.fillMaxWidth(),
 
-                                                        ){
+                                                            ){
 // 显示宜忌
-                                                        Row(
-                                                            modifier = Modifier
-                                                                .fillMaxWidth(
-                                                                    fraction = 1f
-                                                                )
-                                                                .padding(2.dp),
-                                                            verticalAlignment = Alignment.CenterVertically,
-                                                            horizontalArrangement = Arrangement.Center
-                                                        ) {
-                                                            Text(
-                                                                text = "宜",
-                                                                fontSize = 15.sp,
-                                                                textAlign = TextAlign.Center,
-                                                                color = getDarkModeTextColor(
-                                                                    this@MainActivity
-                                                                ),
+                                                            Row(
                                                                 modifier = Modifier
-                                                                    .size(20.dp)
-                                                                    .background(
-                                                                        color = Color(0xFFff9800),
-                                                                        shape = MaterialTheme.shapes.small
+                                                                    .fillMaxWidth(
+                                                                        fraction = 1f
                                                                     )
-
-                                                            )
-                                                            Text(
-                                                                text = yi.value,
-                                                                fontSize = 15.sp,
-                                                                color = getDarkModeTextColor(
-                                                                    this@MainActivity
-                                                                ),
-
+                                                                    .padding(2.dp),
+                                                                verticalAlignment = Alignment.CenterVertically,
+                                                                horizontalArrangement = Arrangement.Center
+                                                            ) {
+                                                                Text(
+                                                                    text = "宜",
+                                                                    fontSize = 15.sp,
+                                                                    textAlign = TextAlign.Center,
+                                                                    color = getDarkModeTextColor(
+                                                                        this@MainActivity
+                                                                    ),
+                                                                    modifier = Modifier
+                                                                        .size(20.dp)
+                                                                        .background(
+                                                                            color = Color(0xFFff9800),
+                                                                            shape = MaterialTheme.shapes.small
+                                                                        )
 
                                                                 )
-                                                        }
-                                                        Row(
-                                                            modifier = Modifier
-                                                                .fillMaxWidth(
-                                                                    fraction = 1f
-                                                                )
-                                                                .padding(2.dp),
-                                                            verticalAlignment = Alignment.CenterVertically,
-                                                            horizontalArrangement = Arrangement.Center
-                                                        ) {
-                                                            Text(
-                                                                text = "忌",
-                                                                fontSize = 15.sp,
-                                                                textAlign = TextAlign.Center,
-                                                                color = getDarkModeTextColor(
-                                                                    this@MainActivity
-                                                                ),
+                                                                Text(
+                                                                    text = yi.value,
+                                                                    fontSize = 15.sp,
+                                                                    color = getDarkModeTextColor(
+                                                                        this@MainActivity
+                                                                    ),
+
+
+                                                                    )
+                                                            }
+                                                            Row(
                                                                 modifier = Modifier
-                                                                    .size(20.dp)
-                                                                    .background(
-                                                                        color = Color(0xFF757575),
-                                                                        shape = MaterialTheme.shapes.small
+                                                                    .fillMaxWidth(
+                                                                        fraction = 1f
                                                                     )
-                                                            )
-
-                                                            Text(
-                                                                text = ji.value,
-                                                                fontSize = 15.sp,
-                                                                color = getDarkModeTextColor(
-                                                                    this@MainActivity
+                                                                    .padding(2.dp),
+                                                                verticalAlignment = Alignment.CenterVertically,
+                                                                horizontalArrangement = Arrangement.Center
+                                                            ) {
+                                                                Text(
+                                                                    text = "忌",
+                                                                    fontSize = 15.sp,
+                                                                    textAlign = TextAlign.Center,
+                                                                    color = getDarkModeTextColor(
+                                                                        this@MainActivity
+                                                                    ),
+                                                                    modifier = Modifier
+                                                                        .size(20.dp)
+                                                                        .background(
+                                                                            color = Color(0xFF757575),
+                                                                            shape = MaterialTheme.shapes.small
+                                                                        )
                                                                 )
-                                                            )
+
+                                                                Text(
+                                                                    text = ji.value,
+                                                                    fontSize = 15.sp,
+                                                                    color = getDarkModeTextColor(
+                                                                        this@MainActivity
+                                                                    )
+                                                                )
+                                                            }
                                                         }
+
                                                     }
                                                 }
                                                 Row(
@@ -999,7 +1041,7 @@ class MainActivity : ComponentActivity() {
                                                     horizontalArrangement = Arrangement.SpaceBetween
                                                 ) {
                                                     Text(
-                                                        text = "快捷联系人",
+                                                        text = resources.getString(R.string.quick_contacts),
                                                         fontSize = 20.sp,
                                                         modifier = Modifier.clickable {
                                                             page.value = -1
@@ -1009,7 +1051,7 @@ class MainActivity : ComponentActivity() {
                                                         )
                                                     )
                                                     Text(
-                                                        text = "应用",
+                                                        text =resources.getString(R.string.app_hidden),
                                                         fontSize = 20.sp,
                                                         modifier = Modifier.clickable {
                                                             page.value = 1
@@ -1026,7 +1068,8 @@ class MainActivity : ComponentActivity() {
 
 
                                         }
-                                    } else if (page.value == -1) {
+                                    }
+                                    else if (page.value == -1) {
                                         Column(
                                             modifier = Modifier
                                                 .fillMaxWidth()
@@ -1073,7 +1116,8 @@ class MainActivity : ComponentActivity() {
                                                 }
                                             }
                                         }
-                                    } else {
+                                    }
+                                    else {
                                         Column(
                                             modifier = Modifier
                                                 .fillMaxWidth()
@@ -1628,7 +1672,8 @@ class MainActivity : ComponentActivity() {
                                 ),
                                 fontColor = getDarkModeTextColor(
                                     this@MainActivity
-                                )
+                                ),
+                                context = this@MainActivity
                             )
                         }
 

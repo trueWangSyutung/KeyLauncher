@@ -52,30 +52,14 @@ import cn.tw.sar.easylauncher.utils.getDarkModeTextColor
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
 
 class SettingsActivity : ComponentActivity() {
-    var menus = listOf(
-        Menu("应用显示", 1, 0),
-        Menu("快捷联系人",1,4),
-        Menu("天气城市设置", 1, 6),
-        Menu("天气API设置", 3, 7),
-        Menu("API_KEY", 4, 8),
-
-
-        //Menu("显示更多应用", 0, 1),
-        // Menu("显示主屏幕", 0, 2),
-        // Menu("负一屏", 0, 3),
-        Menu("时钟显秒", 0, 5),
-        Menu("按键音效", 0, 10),
-
-        Menu("开源仓库",1,9)
-
-        )
+    var menus  = listOf<Menu>()
 
     var showMoreApps = mutableStateOf(false)
     var showDesktop = mutableStateOf(false)
     var showNegativeOneScreen =mutableStateOf(false)
     var showClockSecond = mutableStateOf(false)
     var keyBoardSound = mutableStateOf(false)
-
+    var apiLocal = mutableStateOf("")
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
@@ -115,8 +99,8 @@ class SettingsActivity : ComponentActivity() {
                                 color = subBackground, shape = MaterialTheme.shapes.medium
                             )
                             .clickable {
-                                when (menu.name) {
-                                    "应用显示" -> {
+                                when (menu.id) {
+                                    0 -> {
                                         // 跳转到应用设置
                                         startActivity(
                                             Intent(
@@ -126,7 +110,7 @@ class SettingsActivity : ComponentActivity() {
                                         )
                                     }
 
-                                    "快捷联系人" -> {
+                                    4 -> {
                                         // 跳转到快捷联系人设置
                                         startActivity(
                                             Intent(
@@ -136,7 +120,7 @@ class SettingsActivity : ComponentActivity() {
                                         )
                                     }
 
-                                    "天气城市设置" -> {
+                                    6 -> {
                                         // 跳转到天气城市设置
                                         startActivity(
                                             Intent(
@@ -146,7 +130,7 @@ class SettingsActivity : ComponentActivity() {
                                         )
                                     }
 
-                                    "开源仓库" -> {
+                                    9 -> {
 
                                         // 跳转到开源仓库,通过浏览器
                                         var url = "https://github.com/trueWangSyutung/KeyLauncher"
@@ -176,8 +160,8 @@ class SettingsActivity : ComponentActivity() {
                                 color = subBackground, shape = MaterialTheme.shapes.medium
                             )
                             .clickable {
-                                when (menu.name) {
-                                    "天气API设置" -> {
+                                when (menu.id) {
+                                    7 -> {
                                         // 跳转到天气API设置
 
                                     }
@@ -194,7 +178,7 @@ class SettingsActivity : ComponentActivity() {
                                 )
                         )
                         Text(
-                            text = "${api.value} >",
+                            text = "${apiLocal.value} >",
 
                             color = textColor, textAlign = TextAlign.End,
                             modifier = Modifier
@@ -219,10 +203,13 @@ class SettingsActivity : ComponentActivity() {
 
                             }) {
                             DropdownMenuItem(text = {
-                                Text("心知天气（企业版）", color = textColor, textAlign = TextAlign.End)
+                                Text(resources.getString(R.string.xinzhi), color = textColor, textAlign = TextAlign.End)
                             }, onClick = {
                                 api.value = "心知天气"
-                                sp.edit().putString("api", "心知天气").apply()
+                                apiLocal.value = resources.getString(R.string.xinzhi)
+                                sp.edit().putString("api", "心知天气")
+                                    .putString("apiLocal", resources.getString(R.string.xinzhi))
+                                    .apply()
                                 apiKey.value = sp.getString("心知天气", "").toString()
 
                             })
@@ -240,7 +227,10 @@ class SettingsActivity : ComponentActivity() {
                                 Text("OpenWeatherMap", color = textColor, textAlign = TextAlign.End)
                             }, onClick = {
                                 api.value = "OpenWeatherMap"
-                                sp.edit().putString("api", "OpenWeatherMap").apply()
+                                apiLocal.value = "OpenWeatherMap"
+                                sp.edit().putString("api", "OpenWeatherMap")
+                                    .putString("apiLocal","OpenWeatherMap")
+                                    .apply()
                                 apiKey.value = sp.getString("OpenWeatherMap", "").toString()
                             })
                         }
@@ -256,8 +246,8 @@ class SettingsActivity : ComponentActivity() {
                             )
                             .padding(10.dp)
                             .clickable {
-                                when (menu.name) {
-                                    "API_KEY设置" -> {
+                                when (menu.id) {
+                                    8 -> {
                                         // 跳转到API_KEY设置
 
                                     }
@@ -284,7 +274,7 @@ class SettingsActivity : ComponentActivity() {
                                 unfocusedIndicatorColor = Color.Transparent
                             ),
                             maxLines = 1,
-                            placeholder = { Text(text = "请输入API_KEY",
+                            placeholder = { Text(text = resources.getString(R.string.please_key_key),
                                 fontSize = 15.sp,) },
                             shape = MaterialTheme.shapes.extraLarge,
                             textStyle = TextStyle(
@@ -322,21 +312,21 @@ class SettingsActivity : ComponentActivity() {
                                 )
                         )
                         var checked = false
-                        when (menu.name) {
-                            "显示更多应用" -> {
+                        when (menu.id) {
+                            0 -> {
                                 checked = showMoreApps.value
                             }
-                            "显示主屏幕" -> {
+                            2 -> {
                                 checked = showDesktop.value
                             }
-                            "负一屏" -> {
+                            3 -> {
                                 checked = showNegativeOneScreen.value
                             }
-                            "时钟显秒" -> {
+                           5-> {
                                 // 时钟显示秒
                                 checked = showClockSecond.value
                             }
-                            "按键音效" -> {
+                            10 -> {
                                 // 按键音效
                                 checked = keyBoardSound.value
                             }
@@ -352,21 +342,21 @@ class SettingsActivity : ComponentActivity() {
                                 ),
                             onCheckedChange = {
                             // 更新设置和状态
-                            when (menu.name) {
-                                "显示更多应用" -> {
+                            when (menu.id) {
+                                0 -> {
                                     showMoreApps.value = it
                                 }
-                                "显示主屏幕" -> {
+                                2 -> {
                                     showDesktop.value = it
                                 }
-                                "负一屏" -> {
+                                3 -> {
                                     showNegativeOneScreen.value = it
                                 }
-                                "时钟显秒" -> {
+                                5-> {
                                     // 时钟显示秒
                                     showClockSecond.value = it
                                 }
-                                "按键音效" -> {
+                                10 -> {
                                     // 按键音效
                                     keyBoardSound.value = it
                                 }
@@ -395,13 +385,30 @@ class SettingsActivity : ComponentActivity() {
     }
     override fun onResume() {
         super.onResume()
+        menus = listOf(
+            Menu(resources.getString(R.string.appshow), 1, 0),
+            Menu(resources.getString(R.string.quick_contacts),1,4),
+            Menu(resources.getString(R.string.weather_city), 1, 6),
+            Menu(resources.getString(R.string.weather_api), 3, 7),
+            Menu(resources.getString(R.string.weather_api_key), 4, 8),
 
+
+            //Menu("显示更多应用", 0, 1),
+            // Menu("显示主屏幕", 0, 2),
+            // Menu("负一屏", 0, 3),
+            Menu(resources.getString(R.string.show_second_on_clock), 0, 5),
+            Menu(resources.getString(R.string.key_sound), 0, 10),
+
+            Menu(resources.getString(R.string.open_source),1,9)
+
+        )
         var sharedPreferences = getSharedPreferences("settings", MODE_PRIVATE)
         showMoreApps.value = sharedPreferences.getBoolean("1", false)
         showDesktop.value = sharedPreferences.getBoolean("2", false)
         showNegativeOneScreen.value = sharedPreferences.getBoolean("3", false)
         showClockSecond.value = sharedPreferences.getBoolean("5", false)
         keyBoardSound.value = sharedPreferences.getBoolean("10", false)
+        apiLocal.value = sharedPreferences.getString("apiLocal", "Xinzhi Weather（Bussness）").toString()
     }
 
     @OptIn(ExperimentalMaterial3Api::class)

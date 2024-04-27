@@ -49,6 +49,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -165,7 +166,8 @@ fun KeyBoard(
     height: Float = 300f,
     backgroundColor: Color = Color.Black,
     buttonColor: Color = Color.DarkGray,
-    fontColor: Color = Color.Black
+    fontColor: Color = Color.Black,
+    context: Context = LocalContext.current
 ){
     var list = listOf(
         listOf("1", "2", "3"),
@@ -187,7 +189,7 @@ fun KeyBoard(
             .padding(2.dp)
 
     ) {
-        var newHight = width*0.60f
+        var newHight = width*0.70f
         var topHight = height - newHight
         Row(
             modifier = Modifier
@@ -225,11 +227,11 @@ fun KeyBoard(
                             horizontalArrangement = Arrangement.Center
 
                         ) {
-                            Icon(imageVector = Icons.Filled.Done, contentDescription = "Phone", tint = Color(0xFF00FF00))
+                           // Icon(imageVector = Icons.Filled.Done, contentDescription = "Phone", tint = Color(0xFF00FF00))
                             Text(text = if (page==0 && !mode){
-                                                    "确定"
+                                                    context.resources.getString(R.string.confrim)
                                                     }else{
-                                                        "打开"
+                                context.resources.getString(R.string.open)
                                                          }, color = Color(0xFF00FF00))
                         }
 
@@ -249,8 +251,8 @@ fun KeyBoard(
                             horizontalArrangement = Arrangement.Center
 
                         ) {
-                            Icon(imageVector = Icons.Filled.Phone, contentDescription = "Phone", tint = Color(0xFF00FF00))
-                            Text(text = "拨打", color = Color(0xFF00FF00))
+                            /// Icon(imageVector = Icons.Filled.Phone, contentDescription = "Phone", tint = Color(0xFF00FF00))
+                            Text(text = context.resources.getString(R.string.call), color = Color(0xFF00FF00))
                         }
 
                     }
@@ -352,15 +354,11 @@ fun KeyBoard(
                             horizontalArrangement = Arrangement.Center
 
                         ) {
-                            Icon(imageVector = if (page==0 && !mode){
-                                Icons.Filled.PlayArrow
-                            }else{
-                                Icons.Filled.ArrowBack
-                            }, contentDescription = "Phone", tint = Color(0xFFFF0000))
+
                             Text(text = if (page==0&& !mode){
-                                "应用"
+                                context.resources.getString(R.string.application)
                             }else{
-                                "删除"
+                                context.resources.getString(R.string.delete)
                             }, color = Color(0xFFFF0000))
                         }
                     }
@@ -379,8 +377,8 @@ fun KeyBoard(
                             horizontalArrangement = Arrangement.Center
 
                         ) {
-                            Icon(imageVector = Icons.Filled.Close, contentDescription = "Phone", tint = Color(0xFFFF0000))
-                            Text(text = "取消", color = Color(0xFFFF0000))
+                            //Icon(imageVector = Icons.Filled.Close, contentDescription = "Phone", tint = Color(0xFFFF0000))
+                            Text(text = context.resources.getString(R.string.cancel), color = Color(0xFFFF0000))
                         }
                     }
                 }

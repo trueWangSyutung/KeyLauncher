@@ -27,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import cn.tw.sar.easylauncher.R
 import cn.tw.sar.easylauncher.beam.Contract
 import cn.tw.sar.easylauncher.beam.DesktopIcon
 import cn.tw.sar.easylauncher.ui.theme.EasyLauncherTheme
@@ -116,7 +117,7 @@ class QuickContractsActivity : ComponentActivity() {
 
                         ) {
                             Text(
-                                text = "删除",
+                                text =  resources.getString(R.string.delete),
                                 fontSize = 15.sp,
                                 color = getUnDarkModeTextColor(
                                     this@QuickContractsActivity,
@@ -131,7 +132,7 @@ class QuickContractsActivity : ComponentActivity() {
                                 if (isFull.value) {
                                     Toast.makeText(
                                         this@QuickContractsActivity,
-                                        "快捷联系人已满，最多可以添加8个",
+                                        resources.getString(R.string.quick_contract_filled), //"快捷联系人已满，最多可以添加8个"
                                         Toast.LENGTH_SHORT
                                     ).show()
                                 }else{
@@ -148,7 +149,7 @@ class QuickContractsActivity : ComponentActivity() {
 
                         ) {
                             Text(
-                                text = "添加",
+                                text =  resources.getString(R.string.add),
                                 fontSize = 15.sp,
                                 color = getUnDarkModeTextColor(
                                     this@QuickContractsActivity,

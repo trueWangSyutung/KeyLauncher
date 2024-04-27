@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import cn.tw.sar.easylauncher.R
 import cn.tw.sar.easylauncher.beam.CityBean
 import cn.tw.sar.easylauncher.beam.Result
 import cn.tw.sar.easylauncher.beam.openWeatherMapApi.OpenWeatherCityBean
@@ -170,7 +171,7 @@ class LocalSettingActivity : ComponentActivity() {
                                 modifier = Modifier
                                     .padding(10.dp)
                                     .fillMaxWidth(
-                                        fraction = 0.7f
+                                        fraction = 0.6f
                                     )
                                     .border(
                                         0.dp, MaterialTheme.colorScheme.onSurface,
@@ -181,7 +182,7 @@ class LocalSettingActivity : ComponentActivity() {
                                         shape = MaterialTheme.shapes.extraLarge
                                     ),
                                 maxLines = 1,
-                                placeholder = { Text(text = "请输入城市名称") },
+                                placeholder = { Text(text =  resources.getString(R.string.input_city_name)) },
                                 // 不显示下方的横线
                                 colors = TextFieldDefaults.textFieldColors(
                                     focusedIndicatorColor = Color.Transparent,
@@ -200,7 +201,7 @@ class LocalSettingActivity : ComponentActivity() {
                                         fraction = 1f
                                     )
                             ) {
-                                Text(text = "搜索")
+                                Text(text = resources.getString(R.string.search_btn))
                                 
                             }
                         }

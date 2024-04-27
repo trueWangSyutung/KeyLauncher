@@ -11,8 +11,8 @@ android {
         applicationId = "cn.tw.sar.easylauncher"
         minSdk = 24
         targetSdk = 34
-        versionCode = 100003
-        versionName = "0.0.3 Alpha"
+        versionCode = 100005
+        versionName = "0.0.5 Alpha"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -84,6 +84,8 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-gson:2.10.0")
     // 网络请求，使用retrofit2
 
+    // 日期时间处理
+    implementation("net.time4j:time4j-android:4.8-2021a")
 
 
 
