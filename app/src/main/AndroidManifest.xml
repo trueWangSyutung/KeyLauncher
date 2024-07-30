@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-feature
+        android:name="android.hardware.telephony"
+        android:required="false" />
+    <uses-permission
+        android:name="android.permission.QUERY_ALL_PACKAGES"
+        tools:ignore="QueryAllPackagesPermission" />
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+
+
+
+    <application
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher_gnj"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_gnj_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.EasyLauncher"
+        tools:targetApi="31">
+        <activity
+            android:name=".InitActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.EasyLauncher" >
+        </activity>
+        <activity
+            android:name=".activities.LocalSettingActivity"
+            android:exported="false"
+            android:label="@string/title_activity_local_setting"
+            android:theme="@style/Theme.EasyLauncher" />
+        <activity
+            android:name=".activities.QuickContractsActivity"
+            android:exported="false"
+            android:label="@string/title_activity_quick_contracts"
+            android:theme="@style/Theme.EasyLauncher" />
+        <activity
+            android:name=".activities.AppHiddenActivity"
+            android:exported="false"
+            android:label="@string/title_activity_app_hidden"
+            android:theme="@style/Theme.EasyLauncher" />
+        <activity
+            android:name=".SettingsActivity"
+            android:exported="true"
+            android:label="@string/title_activity_settings"
+            android:theme="@style/Theme.EasyLauncher" />
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.EasyLauncher">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.HOME" />
+            </intent-filter>
+            <!--
+            设置不能旋转
+            android:screenOrientation="portrait"
+            -->
+        </activity>
+    </application>
+
+</manifest>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="more">更多應用</string>
+    <string name="desktop_settings">桌面設置</string>
+    <string name="mores">更多</string>
+    <string name="quick_contacts">快讀聯繫人</string>
+    <string name="app_hidden">應用</string>
+    <string name="errors">接口錯誤</string>
+    <string name="errors_address">清重新設置地址</string>
+    <string name="no_api">沒有設置API KEY</string>
+    <string name="confrim">確認</string>
+    <string name="open">打開</string>
+    <string name="call">撥號</string>
+    <string name="application">應用</string>
+    <string name="delete">刪除</string>
+    <string name="cancel">取消</string>
+    <string name="weather_city">天氣位置設置</string>
+    <string name="weather_api">天氣 API源</string>
+    <string name="appshow">顯示應用</string>
+    <string name="weather_api_key">API_KEY</string>
+    <string name="show_second_on_clock">時鍾顯秒</string>
+    <string name="key_sound">按鍵聲音</string>
+    <string name="open_source">開源倉庫</string>
+    <string name="xinzhi">心知天氣（企業版）</string>
+    <string name="please_key_key">請輸入 API_KEY</string>
+    <string name="sunday">星期日</string>
+    <string name="monday">星期一</string>
+    <string name="tuesday">星期二</string>
+
+    <string name="wednesday">星期三</string>
+    <string name="thursday">星期四</string>
+    <string name="friday">星期五</string>
+    <string name="saturday">星期六</string>
+    <string name="year">年</string>
+    <string name="month">月</string>
+    <string name="day">日</string>
+    <string name="no_address">未設置城市</string>
+    <string name="input_city_name">請輸入城市名稱</string>
+    <string name="search_btn">搜索</string>
+    <string name="quick_contract_filled">快速聯系人已滿，您最多可以添加8個</string>
+    <string name="add">添加</string>
+    <string name="select">收藏</string>
+    <string name="set_default_desktop">設置為默認桌面程式</string>
+
+</resources>

@@ -1,0 +1,48 @@
+<resources>
+    <string name="app_name" translatable="false">KeyLauncher</string>
+    <string name="title_activity_settings" translatable="false">KeyLauncher</string>
+    <string name="title_activity_app_hidden" translatable="false">AppHiddenActivity</string>
+    <string name="title_activity_quick_contracts" translatable="false">QuickContractsActivity</string>
+    <string name="title_activity_local_setting" translatable="false">LocalSettingActivity</string>
+    <string name="more">More Apps</string>
+    <string name="desktop_settings">Desktop Setting</string>
+    <string name="mores">More</string>
+    <string name="quick_contacts">Quick Contacts</string>
+    <string name="app_hidden">Apps</string>
+    <string name="errors">Interface error</string>
+    <string name="errors_address">Please Reset Address</string>
+    <string name="no_api">No API</string>
+    <string name="confrim">Confirm</string>
+    <string name="open">Open</string>
+    <string name="call">Call</string>
+    <string name="application">Apps</string>
+    <string name="delete">Delete</string>
+    <string name="cancel">Cancel</string>
+    <string name="appshow">Show Applications</string>
+    <string name="weather_city">Location of Weather</string>
+    <string name="weather_api">Weather API</string>
+    <string name="weather_api_key">API_KEY</string>
+    <string name="show_second_on_clock">Show Second on Clock</string>
+    <string name="key_sound">Key Sound</string>
+    <string name="open_source">Open Source</string>
+    <string name="xinzhi">Xinzhi Weather（Bussness）</string>
+    <string name="please_key_key">Please Input API_KEY</string>
+    <string name="sunday">Sunday</string>
+    <string name="monday">Monday</string>
+    <string name="wednesday">Wednesday</string>
+    <string name="tuesday">Tuesday</string>
+    <string name="thursday">Thursday</string>
+    <string name="friday">Friday</string>
+    <string name="saturday">Saturday</string>
+    <string name="year">Year</string>
+    <string name="month">Month</string>
+    <string name="day">Day</string>
+    <string name="no_address">Unset City</string>
+    <string name="input_city_name">Please Input CityName</string>
+    <string name="search_btn">Search</string>
+    <string name="quick_contract_filled">The Quick Contracts is filled, you can add 8 contracts</string>
+    <string name="add">Add</string>
+    <string name="title_activity_init" translatable="false">InitActivity</string>
+    <string name="select">Collect</string>
+    <string name="set_default_desktop">Set Default Desktop\n</string>
+</resources>
