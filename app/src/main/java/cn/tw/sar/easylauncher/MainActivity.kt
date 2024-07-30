@@ -91,6 +91,7 @@ import java.util.Date
 import java.util.Locale
 import kotlin.concurrent.thread
 import kotlin.math.floor
+import kotlin.math.round
 
 
 class MainActivity : ComponentActivity() {
@@ -565,6 +566,11 @@ class MainActivity : ComponentActivity() {
     }
     var subList =  mutableStateListOf<DesktopIcon>()
     var biliList  = mutableStateListOf<Float>()
+    var alphaTable = arrayOf(
+        "A", "B", "C", "D", "E", "F", "G", "H", "I", "J",
+        "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T",
+        "U", "V", "W", "X", "Y", "Z"
+    )
     var currPackageName = mutableStateOf("")
     @RequiresApi(Build.VERSION_CODES.R)
     @OptIn(ExperimentalFoundationApi::class)
@@ -1125,89 +1131,104 @@ class MainActivity : ComponentActivity() {
                                         dragDistance.value += it
                                     })
 
-                                    Column(
-                                        modifier = if (showMoreApps.value) {
-                                            Modifier
-                                                .fillMaxWidth()
-                                                .height(
-                                                    subHight.dp
-                                                )
+
+                                        Column(
+                                            modifier = if (showMoreApps.value) {
+                                                Modifier
+                                                    .fillMaxWidth()
+                                                    .height(
+                                                        subHight.dp
+                                                    )
 
 
 
-                                        } else {
-                                            Modifier
-                                                .fillMaxWidth()
-                                                .height(
-                                                    subHight.dp
-                                                )
-                                        }
-                                    ) {
-                                        // 显示所有应用图标，一行显示 2 个
-                                        Log.d("MainActivity", "page.value: ${pageCount *(page.value-1)}~${pageCount *(page.value)}")
+                                            } else {
+                                                Modifier
+                                                    .fillMaxWidth()
+                                                    .height(
+                                                        subHight.dp
+                                                    )
+                                            }
+                                        ) {
+                                            // 显示所有应用图标，一行显示 2 个
+                                            Log.d("MainActivity", "page.value: ${pageCount *(page.value-1)}~${pageCount *(page.value)}")
 
-                                        if (showMoreApps.value) {
-                                            // 从 list 获取 前五个 元素
-                                            // 下标 为 currAppNumber.value - 2 ~ currAppNumber.value + 3
-                                            // currAppNumber.value - 2 < 0 , 取 currAppNumber.value - 2 + list.size
-                                            // currAppNumber.value + 2 > list.size, 取 (currAppNumber.value + 2) % list.size
-                                            // 获取前两个
-                                            // 获取 currAppNumber.value - 2 ~ currAppNumber.value + 3 的字数组
-                                            for (i in 0 until  subList.size) {
+                                            if (showMoreApps.value) {
+                                                // 从 list 获取 前五个 元素
+                                                // 下标 为 currAppNumber.value - 2 ~ currAppNumber.value + 3
+                                                // currAppNumber.value - 2 < 0 , 取 currAppNumber.value - 2 + list.size
+                                                // currAppNumber.value + 2 > list.size, 取 (currAppNumber.value + 2) % list.size
+                                                // 获取前两个
+                                                // 获取 currAppNumber.value - 2 ~ currAppNumber.value + 3 的字数组
                                                 Row(
-                                                    modifier = Modifier
-                                                        .fillMaxWidth(),
-                                                    verticalAlignment = Alignment.CenterVertically,
+                                                    modifier = Modifier.fillMaxWidth()
                                                 ) {
                                                     Column(
-                                                        modifier = Modifier.fillMaxWidth(
-                                                            biliList[i]
-                                                        ),
-                                                   ) {
+                                                        modifier = Modifier
+                                                            .fillMaxWidth(1f)
+                                                            .fillMaxHeight(),
+                                                        verticalArrangement = Arrangement.Center,
+                                                        horizontalAlignment = Alignment.Start,
+                                                    ){
+                                                        for (i in 0 until  subList.size) {
+                                                            Row(
+                                                                modifier = Modifier
+                                                                    .fillMaxWidth(),
+                                                                verticalAlignment = Alignment.CenterVertically,
+                                                            ) {
+                                                                Column(
+                                                                    modifier = Modifier.fillMaxWidth(
+                                                                        biliList[i]
+                                                                    ),
+                                                                ) {
 
-                                                    }
-                                                    DesktopIcon(
-                                                        app =   subList.elementAt(i),
-                                                        width = (dpWidth / 2 ).dp,
-                                                        isXuanzhong = currPackageName.value == subList.elementAt(i).packageName,
-                                                        small =  currPackageName.value != subList.elementAt(i).packageName,
+                                                                }
+                                                                DesktopIcon(
+                                                                    app =   subList.elementAt(i),
+                                                                    width = (dpWidth / 2 ).dp,
+                                                                    isXuanzhong = currPackageName.value == subList.elementAt(i).packageName,
+                                                                    small =  currPackageName.value != subList.elementAt(i).packageName,
 
-                                                    )
-                                                }
+                                                                    )
+                                                            }
 
-                                            }
-
-
-
-                                        }else{
-                                            for (i in pageCount *(page.value-1) until pageCount *(page.value) step 2) {
-                                                Row(
-                                                    modifier = Modifier
-                                                        .fillMaxWidth(),
-                                                    verticalAlignment = Alignment.CenterVertically,
-                                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                                ) {
-
-                                                    if (i < appList.size) {
-                                                        // 获取第i个应用
-                                                        DesktopIcon(
-                                                            app =  appList.elementAt(i),
-                                                            width = (dpWidth / 2 ).dp,
-                                                            isXuanzhong = currAppNumber.value == i
-                                                        )
-                                                        if (i + 1 < appList.size) {
-                                                            DesktopIcon(
-                                                                app = appList.elementAt(i+1),
-                                                                width = (dpWidth / 2).dp,
-                                                                isXuanzhong = currAppNumber.value == i + 1
-                                                            )
                                                         }
                                                     }
 
                                                 }
+
+
+
+                                            }else{
+                                                for (i in pageCount *(page.value-1) until pageCount *(page.value) step 2) {
+                                                    Row(
+                                                        modifier = Modifier
+                                                            .fillMaxWidth(),
+                                                        verticalAlignment = Alignment.CenterVertically,
+                                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                                    ) {
+
+                                                        if (i < appList.size) {
+                                                            // 获取第i个应用
+                                                            DesktopIcon(
+                                                                app =  appList.elementAt(i),
+                                                                width = (dpWidth / 2 ).dp,
+                                                                isXuanzhong = currAppNumber.value == i
+                                                            )
+                                                            if (i + 1 < appList.size) {
+                                                                DesktopIcon(
+                                                                    app = appList.elementAt(i+1),
+                                                                    width = (dpWidth / 2).dp,
+                                                                    isXuanzhong = currAppNumber.value == i + 1
+                                                                )
+                                                            }
+                                                        }
+
+                                                    }
+                                                }
                                             }
                                         }
-                                    }
+
                                 }
 
 
@@ -1659,7 +1680,8 @@ class MainActivity : ComponentActivity() {
                                                 callPhoneText.value += it
                                                 //  如果不是 *\# 开头
                                                 if (callPhoneText.value.length > 1) {
-                                                    if (callPhoneText.value[0] != '*' && callPhoneText.value[0] != '#' ) {
+                                                    if (callPhoneText.value[0] != '*' && callPhoneText.value[0] != '#' )
+                                                    {
                                                         val database: QuickContractsDatabase =
                                                             QuickContractsDatabase.getDatabase(this@MainActivity)
 
@@ -1673,6 +1695,16 @@ class MainActivity : ComponentActivity() {
                                                             Log.d("MainActivity", "contracts: $contracts")
                                                         }
 
+                                                    }
+                                                    else{
+                                                        // 如果 是 *#01#*
+                                                        if (callPhoneText.value == "*#01#*") {
+                                                            callPhoneText.value = ""
+                                                            callPhoneMode.value = false
+                                                            page.value = 0
+                                                            val intent = Intent(this@MainActivity, SettingsActivity::class.java)
+                                                            startActivity(intent)
+                                                        }
                                                     }
                                                 }
 
@@ -1713,7 +1745,7 @@ class MainActivity : ComponentActivity() {
         } else {
             appList
         }
-        var before = floor(((pageCount / 2 - 1) / 2).toDouble()).toInt()
+        var before = round(((pageCount / 2 - 1) / 2).toDouble()).toInt()
         biliList.clear()
         for (i in 0 until  before) {
             biliList.add(0f+0.1f*i)

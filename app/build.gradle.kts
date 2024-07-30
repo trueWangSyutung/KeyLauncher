@@ -15,8 +15,8 @@ android {
         applicationId = "cn.tw.sar.easylauncher"
         minSdk = 24
         targetSdk = 35
-        versionCode = 100021
-        versionName = "0.2.1 Beta Preview2"
+        versionCode = 100022
+        versionName = "0.2.2 Beta Preview2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
